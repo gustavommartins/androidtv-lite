@@ -37,7 +37,10 @@ if (-not (Test-Path $jar)) { throw "Falta a plataforma android-28 ($jar)." }
 
 $root = $PSScriptRoot
 $out = Join-Path $root "build"
-Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Force $out | Out-Null
+# Limpa a saida, mas MANTEM a chave de assinatura: com uma chave nova a cada build,
+# o 'adb install -r' falharia (assinatura diferente da versao ja instalada).
+Get-ChildItem $out -Force | Where-Object { $_.Name -ne "debug.keystore" } | Remove-Item -Recurse -Force
 foreach ($d in "compiled", "gen", "classes", "dex") { New-Item -ItemType Directory -Force (Join-Path $out $d) | Out-Null }
 
 Write-Host "==> Recursos (aapt2 compile/link)"
@@ -77,9 +80,11 @@ if (-not $keytool) {
     $jh = (& java -XshowSettings:properties -version 2>&1 | Select-String "java.home").ToString().Split("=")[1].Trim()
     $keytool = Join-Path $jh "bin\keytool.exe"
 }
-& $keytool -genkeypair -keystore $ks -storepass android -keypass android -alias key `
-    -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=androidtv-lite" 2>&1 | Out-Null
-Check "keytool"
+if (-not (Test-Path $ks)) {
+    & $keytool -genkeypair -keystore $ks -storepass android -keypass android -alias key `
+        -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=androidtv-lite" 2>&1 | Out-Null
+    Check "keytool"
+}
 
 $apk = Join-Path $out "androidtv-lite.apk"
 & "$bt\apksigner.bat" sign --ks $ks --ks-pass pass:android --key-pass pass:android --out $apk $aligned 2>&1 |

@@ -1,82 +1,104 @@
 # androidtv-lite
 
-Um launcher de Android TV **minimalista e leve**, escrito para TVs com pouca memória e processador fraco. É um único app de uma tela, em Java puro, sem Leanback, sem Compose e sem bibliotecas externas.
+**English** · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md)
 
-> *A lightweight, single-screen Android TV launcher inspired by the tvOS home screen: top navigation bar, a centered grid of streaming apps, date on the left and clock on the right. Plain Java, no dependencies, ~50 KB APK. Instructions below are in Portuguese.*
+A **minimal, lightweight Android TV launcher** for TVs with little memory and a weak processor. It is a single-screen app in plain Java: no Leanback, no Compose and no external libraries.
 
-O visual é inspirado na tela inicial do Apple TV (tvOS). Este projeto **não é afiliado à Apple** nem a nenhuma das marcas dos apps exibidos.
+The look is inspired by the Apple TV (tvOS) home screen. This project is **not affiliated with Apple** or with any of the brands of the apps it shows.
 
-## Sumário
+![Home screen](docs/screenshots/home-en.jpg)
 
-- [O que ele faz](#o-que-ele-faz)
-- [Como fica a tela](#como-fica-a-tela)
-- [Requisitos](#requisitos)
-- [Compilar](#compilar)
-- [Instalar na TV](#instalar-na-tv)
-- [Tornar o launcher padrão](#tornar-o-launcher-padrão)
-- [Voltar ao launcher original / desinstalar](#voltar-ao-launcher-original--desinstalar)
-- [Personalizar](#personalizar)
-- [Como ele escolhe os apps](#como-ele-escolhe-os-apps)
-- [Limitações conhecidas](#limitações-conhecidas)
-- [Solução de problemas](#solução-de-problemas)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Licença](#licença)
+<details>
+<summary>Other languages (screenshots)</summary>
 
-## O que ele faz
+| Português (Brasil) | Español |
+|---|---|
+| ![Tela inicial em português](docs/screenshots/home-pt.jpg) | ![Pantalla de inicio en español](docs/screenshots/home-es.jpg) |
 
-- **Barra de navegação no topo, centralizada:** `Home` · `Google Play` · `Configurações`, em pílula translúcida. A aba com foco vira uma pílula branca, como no tvOS.
-- **Data no canto superior esquerdo e horário no direito.**
-- **Grade de apps centralizada**, em 4 colunas e várias linhas, sem rolagem lateral. O app em foco sobe, aumenta e mostra o nome embaixo.
-- **Ordem alfabética**, ignorando acentos e maiúsculas.
-- **Só apps de streaming conhecidos** e qualquer app instalado por você. Apps de sistema da fabricante e do Google ficam de fora.
-- **Imagem de fundo** reduzida para 1280 px e carregada em RGB_565, para gastar pouca memória. É fácil trocar por outra.
-- **Sem rede, sem anúncios, sem telemetria, sem permissões.** O app não pede nenhuma permissão.
+</details>
 
-## Como fica a tela
+> The Portuguese screenshot was taken on a TV set to Portuguese. The English and Spanish ones were taken on the same TV with the app's language forced by a debug build, so they show what a TV set to those languages displays.
 
+## Table of contents
+
+- [Features](#features)
+- [Language support](#language-support)
+- [Requirements](#requirements)
+- [Build](#build)
+- [Install on the TV](#install-on-the-tv)
+- [Make it the default launcher](#make-it-the-default-launcher)
+- [Go back to the original launcher / uninstall](#go-back-to-the-original-launcher--uninstall)
+- [Customize](#customize)
+- [How apps are chosen](#how-apps-are-chosen)
+- [Known limitations](#known-limitations)
+- [Troubleshooting](#troubleshooting)
+- [Project structure](#project-structure)
+- [License](#license)
+
+## Features
+
+- **Top navigation bar, centered:** `Home` · `Google Play` · `Settings`, in a translucent pill. The focused tab turns into a white pill, like in tvOS.
+- **Date in the top-left corner and clock in the top-right.**
+- **Centered app grid**, 4 columns and several rows, with no sideways scrolling. The focused app lifts, grows and shows its name below.
+- **Alphabetical order**, ignoring accents and case.
+- **Only known streaming apps** plus any app you install yourself. Manufacturer and Google system apps are left out.
+- **Background image** scaled to 1280 px and loaded as RGB_565 to use little memory. Easy to replace.
+- **No network, no ads, no telemetry, no permissions.** The app requests no permission at all.
+
+## Language support
+
+The launcher follows the **TV's system language**. Nothing to configure.
+
+| TV language | Navigation bar | Date example |
+|---|---|---|
+| English (default) | Home · Google Play · Settings | Sunday, October 18 |
+| Português | Início · Google Play · Configurações | domingo, 18 de outubro |
+| Español | Inicio · Google Play · Configuración | domingo, 18 de octubre |
+
+- Any other language falls back to **English**.
+- The date follows the language's own format, and the clock follows the TV's **12 h / 24 h** setting (the 12 h format has no AM/PM marker).
+- App names come from each app, so they are shown in whatever language the app provides.
+
+**Adding a language:** create `res/values-xx/strings.xml` (`xx` = language code, for example `fr`) with the three strings below and rebuild. Pull requests are welcome.
+
+```xml
+<resources>
+    <string name="app_name">...</string>
+    <string name="nav_home">...</string>
+    <string name="nav_settings">...</string>
+</resources>
 ```
- domingo, 18 de outubro       ( Home | Google Play | Configurações )       19:44
 
-                          ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
-                          │Apple TV│ │Crunchy.│ │Disney+ │ │Globopl.│
-                          └────────┘ └────────┘ └────────┘ └────────┘
-                             ┌────────┐ ┌────────┐ ┌────────┐
-                             │Netflix │ │Prime V.│ │YouTube │
-                             └────────┘ └────────┘ └────────┘
-```
+## Requirements
 
-Os cartões usam o *banner* (16:9) que cada app declara para Android TV. Se o app não tiver banner, o ícone é usado.
+**On the TV**
 
-## Requisitos
+- Android TV with **Android 8.0 (API 26) or later**.
+- ADB debugging enabled (steps below).
 
-**Na TV**
+Tested on a TCL TV with **Android 9**, **1.4 GB of RAM** and slow eMMC storage. It has not been tested on other devices. If it works (or not) on yours, please open an issue.
 
-- Android TV com **Android 8.0 (API 26) ou superior**.
-- Depuração por ADB ativada (passos abaixo).
+**On the computer (to build)**
 
-Testado em uma TV TCL com **Android 9**, **1,4 GB de RAM** e armazenamento eMMC lento. Não foi testado em outros aparelhos. Se funcionar (ou não) no seu, abra uma *issue*.
+- **JDK 17** or newer. With JDK 22+ see the [note about D8](#note-about-new-jdks-and-d8).
+- **Android SDK** with `build-tools` and `platforms;android-28`.
+- **ADB** (`platform-tools`) to install.
 
-**No computador (para compilar)**
+## Build
 
-- **JDK 17** ou superior. Com JDK 22+ veja a [observação sobre o D8](#observação-sobre-jdk-novo-e-o-d8).
-- **Android SDK** com `build-tools` e `platforms;android-28`.
-- **ADB** (`platform-tools`) para instalar.
+The project does not use Gradle. The `build.ps1` script (Windows/PowerShell) calls `aapt2`, `javac`, `d8`, `zipalign` and `apksigner` directly.
 
-## Compilar
+### 1. Get the minimum Android SDK
 
-O projeto não usa Gradle. O script `build.ps1` (Windows/PowerShell) chama direto `aapt2`, `javac`, `d8`, `zipalign` e `apksigner`.
-
-### 1. Obter o Android SDK mínimo
-
-Se você ainda não tem o SDK, baixe as *command-line tools* em <https://developer.android.com/studio#command-line-tools-only> e rode:
+If you do not have the SDK yet, download the *command-line tools* from <https://developer.android.com/studio#command-line-tools-only> and run:
 
 ```powershell
 sdkmanager --sdk_root=C:\Android\sdk "build-tools;34.0.0" "platforms;android-28"
 ```
 
-Você precisará aceitar as licenças do Android SDK.
+You will need to accept the Android SDK licenses.
 
-### 2. Compilar
+### 2. Build
 
 ```powershell
 git clone https://github.com/gustavommartins/androidtv-lite.git
@@ -84,43 +106,43 @@ cd androidtv-lite
 .\build.ps1 -SdkRoot C:\Android\sdk
 ```
 
-O APK sai em `build\androidtv-lite.apk`. Ele é assinado com uma chave de teste criada localmente em `build\debug.keystore`. Essa pasta não é versionada.
+The APK is written to `build\androidtv-lite.apk`. It is signed with a test key created locally in `build\debug.keystore`. That folder is not versioned, and **the key is kept between builds**, so you can update an installed copy with `adb install -r`.
 
-> Se o PowerShell bloquear scripts, rode:
+> If PowerShell blocks scripts, run:
 > `powershell -ExecutionPolicy Bypass -File .\build.ps1 -SdkRoot C:\Android\sdk`
 
-### Observação sobre JDK novo e o D8
+### Note about new JDKs and D8
 
-O D8 que vem nas `build-tools` 34 pode falhar com bytecode gerado por JDKs muito novos (por exemplo, o JDK 25), com um `NullPointerException` ao converter classes anônimas. Há duas saídas:
+The D8 that ships in `build-tools` 34 can fail on bytecode produced by very new JDKs (for example JDK 25), with a `NullPointerException` when converting anonymous classes. There are two ways out:
 
-1. Usar o **JDK 17** para compilar; ou
-2. Passar um R8/D8 mais novo, do repositório Maven do Google:
+1. Build with **JDK 17**; or
+2. Pass a newer R8/D8 from Google's Maven repository:
 
 ```powershell
 Invoke-WebRequest "https://dl.google.com/dl/android/maven2/com/android/tools/r8/8.7.18/r8-8.7.18.jar" -OutFile r8.jar
 .\build.ps1 -SdkRoot C:\Android\sdk -R8Jar .\r8.jar
 ```
 
-### Em Linux ou macOS
+### On Linux or macOS
 
-O script é para Windows, mas os passos são os mesmos: `aapt2 compile` → `aapt2 link` → `javac --release 8` → `d8` → adicionar `classes.dex` ao APK → `zipalign` → `apksigner sign`. Leia o `build.ps1` como referência.
+The script is for Windows, but the steps are the same: `aapt2 compile` → `aapt2 link` → `javac --release 8` → `d8` → add `classes.dex` to the APK → `zipalign` → `apksigner sign`. Read `build.ps1` as a reference.
 
-## Instalar na TV
+## Install on the TV
 
-### 1. Ativar o modo desenvolvedor na TV
+### 1. Enable developer mode on the TV
 
-1. **Configurações → Preferências do dispositivo → Sobre**.
-2. Clique **7 vezes** em **Build** (ou "Versão do SO") até aparecer *"Você agora é um desenvolvedor"*.
-3. Volte e abra **Preferências do dispositivo → Opções do desenvolvedor**.
-4. Ative **Depuração USB** e, se existir, **Depuração por rede/Wi-Fi (ADB)**.
+1. **Settings → Device Preferences → About**.
+2. Click **Build** (or "OS version") **7 times** until it says *"You are now a developer"*.
+3. Go back and open **Device Preferences → Developer options**.
+4. Turn on **USB debugging** and, if present, **Network/Wi-Fi debugging (ADB)**.
 
-Em muitas TVs, ativar a Depuração USB já abre a porta ADB na rede (porta 5555), mesmo sem a opção separada de rede.
+On many TVs, turning on USB debugging already opens the ADB port on the network (port 5555), even without the separate network option.
 
-### 2. Descobrir o IP da TV
+### 2. Find the TV's IP address
 
-**Configurações → Rede e Internet →** conexão atual. Anote o endereço IP (algo como `192.168.0.50`).
+**Settings → Network & Internet →** current connection. Note the IP address (something like `192.168.0.50`).
 
-### 3. Conectar e instalar
+### 3. Connect and install
 
 ```powershell
 adb connect 192.168.0.50:5555
@@ -128,122 +150,128 @@ adb devices
 adb install -r build\androidtv-lite.apk
 ```
 
-Na primeira conexão, a TV mostra o aviso **"Permitir depuração USB?"**. Marque **"Sempre permitir a partir deste computador"** e confirme. Se o `adb devices` mostrar `unauthorized`, aceite o aviso na TV e conecte de novo.
+On the first connection the TV shows **"Allow USB debugging?"**. Tick **"Always allow from this computer"** and confirm. If `adb devices` shows `unauthorized`, accept the prompt on the TV and connect again.
 
-### 4. Abrir
+### 4. Open it
 
-O app aparece na lista de apps da TV como **Launcher Leve**. Você já pode abri-lo por lá, sem torná-lo padrão. Nada mais foi alterado na TV.
+The app appears in the TV's app list as **Lite Launcher** (or the translated name). You can already open it from there without making it the default. Nothing else on the TV was changed.
 
-## Tornar o launcher padrão
+## Make it the default launcher
 
 ```powershell
 adb shell cmd package set-home-activity com.androidtvlite.launcher/.MainActivity
 ```
 
-Isso registra o launcher como tela inicial preferida. A TV deve abrir nele ao ligar.
+This registers the launcher as the preferred home screen. The TV should open on it when powered on.
 
-### Se o botão Home continuar abrindo o launcher original
+### If the Home button still opens the original launcher
 
-Algumas fabricantes chamam o launcher original diretamente quando você aperta **Home**, ignorando a preferência. Foi o caso na TV TCL onde isto foi desenvolvido. Para forçar o Home a cair no Launcher Leve, é preciso **desativar o launcher original** só para o seu usuário:
+Some manufacturers call the original launcher directly when you press **Home**, ignoring the preference. That was the case on the TCL TV this was developed on. To force Home to land on this launcher you have to **disable the original launcher** for your user only:
 
 ```powershell
 adb shell pm disable-user --user 0 com.google.android.tvlauncher
 ```
 
-Antes de fazer isso, saiba que:
+Before doing this, know that:
 
-- É um launcher do Google e outras partes do sistema podem tentar abri-lo.
-- Se o Launcher Leve falhar com o original desativado, a TV mostra uma tela de recuperação da fabricante. Você ainda consegue reverter pelo computador (comandos abaixo).
-- Atualizações do sistema ou da Play Store podem reativá-lo.
-- O nome do pacote do launcher original pode ser diferente na sua TV. Confira com `adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME`.
+- It is a Google launcher, and other parts of the system may try to open it.
+- If this launcher fails while the original is disabled, the TV shows the manufacturer's recovery screen. You can still undo it from the computer (commands below).
+- System or Play Store updates may re-enable it.
+- The original launcher's package name may differ on your TV. Check with `adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME`.
 
-## Voltar ao launcher original / desinstalar
+## Go back to the original launcher / uninstall
 
 ```powershell
-# Reativar o launcher original (se você o desativou)
+# Re-enable the original launcher (if you disabled it)
 adb shell pm enable com.google.android.tvlauncher
 
-# Voltar a preferência para o original
+# Point the preference back to the original
 adb shell cmd package set-home-activity com.google.android.tvlauncher/.MainActivity
 
-# Remover o Launcher Leve
+# Remove this launcher
 adb shell pm uninstall com.androidtvlite.launcher
 ```
 
-Se algo der muito errado, um **reset de fábrica** da TV restaura tudo.
+If something goes badly wrong, a **factory reset** of the TV restores everything.
 
-## Personalizar
+## Customize
 
-Tudo está em `src/com/androidtvlite/launcher/MainActivity.java`. Depois de editar, rode `build.ps1` e reinstale com `adb install -r`.
+Everything is in `src/com/androidtvlite/launcher/MainActivity.java`. After editing, run `build.ps1` and reinstall with `adb install -r`.
 
-| O que mudar | Onde |
+| What to change | Where |
 |---|---|
-| Apps de streaming "conhecidos" | constante `PREFERRED` (lista de nomes de pacote) |
-| Número de colunas da grade | constante `COLUMNS` |
-| Tamanho dos cartões | `cardW` e `cardH` em `makeTile` |
-| Tamanho do aumento no foco | `1.15f` em `makeTile` (e `1.04f` em `makeTab`) |
-| Itens da barra de navegação | chamadas a `makeTab(...)` em `onCreate` |
-| Formato da data e da hora | `setFormat24Hour(...)` em `onCreate` |
-| Escurecimento sobre o fundo | `GradientDrawable` do `scrim` em `onCreate` |
-| Imagem de fundo | `res/drawable-nodpi/bg.jpg` |
+| "Known" streaming apps | `PREFERRED` constant (list of package names) |
+| Number of grid columns | `COLUMNS` constant |
+| Card size | `cardW` and `cardH` in `makeTile` |
+| Focus zoom | `1.15f` in `makeTile` (and `1.04f` in `makeTab`) |
+| Navigation bar items | `makeTab(...)` calls in `onCreate` |
+| Texts (bar, app name) | `res/values*/strings.xml` |
+| Darkening over the background | the `scrim` `GradientDrawable` in `onCreate` |
+| Background image | `res/drawable-nodpi/bg.jpg` |
 
-### Trocar a imagem de fundo
+### Changing the background image
 
-Substitua `res/drawable-nodpi/bg.jpg` por uma imagem sua e recompile. Dicas:
+Replace `res/drawable-nodpi/bg.jpg` with your own image and rebuild. Tips:
 
-- **1280 px de largura** é suficiente e usa pouca memória. Evite imagens 4K, que gastam RAM à toa.
-- Formato JPEG, qualidade em torno de 85.
-- O fundo é cortado para preencher a tela (`centerCrop`), então mantenha o assunto principal no centro.
-- A foto que vem no repositório (uma vila costeira ao pôr do sol) é a imagem escolhida pelo autor do projeto. **Ela não está coberta pela licença MIT**: os direitos pertencem ao fotógrafo, e eu não sei a licença original. Se você for o dono e quiser que ela saia, ou se for redistribuir o projeto, troque o arquivo por uma imagem sua ou de licença livre.
-- Se usar uma foto de terceiros, respeite a licença dela.
+- **1280 px wide** is enough and uses little memory. Avoid 4K images, which waste RAM.
+- JPEG, quality around 85.
+- The background is cropped to fill the screen (`centerCrop`), so keep the main subject in the middle.
+- The photo shipped in the repository (a seaside village at sunset) is the one chosen by the project author. **It is not covered by the MIT license**: the rights belong to the photographer, and the original license is unknown to me. If you are the owner and want it removed, or if you redistribute the project, replace the file with an image of your own or one under a free license.
+- If you use a third-party photo, respect its license.
 
-## Como ele escolhe os apps
+## How apps are chosen
 
-1. Consulta o sistema por apps com a categoria `LEANBACK_LAUNCHER` (os apps feitos para TV).
-2. Ignora o próprio launcher, a Play Store e as Configurações (que já estão na barra).
-3. Mantém um app se ele estiver na lista `PREFERRED` **ou** se **não for app de sistema**, ou seja, qualquer app que você instalar.
-4. Ordena por nome, ignorando acentos e maiúsculas.
-5. A lista é refeita sempre que você volta à tela inicial, então um app recém-instalado aparece sem reiniciar.
+1. Asks the system for apps with the `LEANBACK_LAUNCHER` category (apps made for TV).
+2. Skips the launcher itself, Google Play and Settings (they are already in the bar).
+3. Keeps an app if it is in the `PREFERRED` list **or** if it is **not a system app**, that is, any app you install.
+4. Sorts by name, ignoring accents and case.
+5. The list is rebuilt every time you return to the home screen, so a newly installed app shows up without a reboot.
 
-## Limitações conhecidas
+## Known limitations
 
-- **Apps só de celular** (sem versão para Android TV) não aparecem. É uma regra do Android; nenhum launcher de TV os mostra.
-- **Sem pesquisa, sem recomendações, sem "continuar assistindo".** É de propósito: o objetivo é ser leve.
-- **Sem widgets e sem canais da tela inicial** do Android TV.
-- **Sem ícone de app próprio** e sem *banner* para a lista de apps.
-- O comportamento do botão **Home** e da inicialização varia entre fabricantes. Veja a seção sobre o launcher padrão.
-- Os tamanhos são em `dp`, mas o layout só foi conferido em uma TV que renderiza em 1280×720. Em outras telas, pode ser preciso ajustar `cardW`/`cardH` e as margens.
+- **Phone-only apps** (with no Android TV version) do not appear. That is an Android rule; no TV launcher shows them.
+- **No search, no recommendations, no "continue watching".** This is on purpose: the goal is to be light.
+- **No widgets and no Android TV home channels.**
+- **No app icon of its own** for the launcher entry.
+- The behavior of the **Home** button and of boot varies between manufacturers. See the section on the default launcher.
+- Sizes are in `dp`, but the layout was only checked on a TV that renders at 1280×720. On other screens you may need to adjust `cardW`/`cardH` and the margins.
 
-## Solução de problemas
+## Troubleshooting
 
-| Sintoma | O que fazer |
+| Symptom | What to do |
 |---|---|
-| `adb connect` falha | Confira o IP, se a TV e o PC estão na mesma rede e se a depuração está ativa. Tente desligar e ligar a Depuração USB. |
-| `adb devices` mostra `unauthorized` | Aceite o aviso "Permitir depuração" na tela da TV e conecte de novo. |
-| `INSTALL_FAILED_...` | Rode `adb install -r`. Se a assinatura mudou, desinstale antes com `adb shell pm uninstall com.androidtvlite.launcher`. |
-| O app não aparece na lista de apps | Confirme com `adb shell pm list packages com.androidtvlite.launcher`. |
-| O Home abre o launcher original | Veja [Se o botão Home continuar abrindo o launcher original](#se-o-botão-home-continuar-abrindo-o-launcher-original). |
-| Um app de streaming não aparece | Ele precisa ter a categoria `LEANBACK_LAUNCHER`. Confira com `adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.LEANBACK_LAUNCHER`. |
-| `build.ps1` falha no D8 com `NullPointerException` | Use o JDK 17 ou passe `-R8Jar` (veja [Observação sobre JDK novo e o D8](#observação-sobre-jdk-novo-e-o-d8)). |
-| Preciso do launcher antigo de volta agora | `adb shell pm enable com.google.android.tvlauncher` e depois o `set-home-activity` do original. |
+| `adb connect` fails | Check the IP, that the TV and PC are on the same network and that debugging is on. Try turning USB debugging off and on. |
+| `adb devices` shows `unauthorized` | Accept the "Allow debugging" prompt on the TV screen and connect again. |
+| `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | The installed copy was signed with a different key. Uninstall it first: `adb shell pm uninstall com.androidtvlite.launcher`. Keep `build\debug.keystore` from then on. |
+| The app is not in the app list | Check with `adb shell pm list packages com.androidtvlite.launcher`. |
+| Home opens the original launcher | See [If the Home button still opens the original launcher](#if-the-home-button-still-opens-the-original-launcher). |
+| A streaming app does not appear | It needs the `LEANBACK_LAUNCHER` category. Check with `adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.LEANBACK_LAUNCHER`. |
+| `build.ps1` fails in D8 with `NullPointerException` | Use JDK 17 or pass `-R8Jar` (see [Note about new JDKs and D8](#note-about-new-jdks-and-d8)). |
+| The text is in the wrong language | The launcher follows the TV's system language. Change it in the TV settings; unsupported languages show English. |
+| I need the old launcher back right now | `adb shell pm enable com.google.android.tvlauncher`, then the original's `set-home-activity`. |
 
-## Estrutura do projeto
+## Project structure
 
 ```
 androidtv-lite/
-├── AndroidManifest.xml                       # atividade HOME + LEANBACK_LAUNCHER, sem permissões
-├── build.ps1                                 # compila e assina o APK (sem Gradle)
-├── res/drawable-nodpi/bg.jpg                 # fundo (foto, fora da licença MIT)
+├── AndroidManifest.xml                       # HOME + LEANBACK_LAUNCHER activity, no permissions
+├── build.ps1                                 # builds and signs the APK (no Gradle)
+├── docs/screenshots/                         # README images
+├── res/
+│   ├── drawable-nodpi/bg.jpg                 # background (photo, not under the MIT license)
+│   ├── values/strings.xml                    # English (default)
+│   ├── values-pt/strings.xml                 # Português
+│   └── values-es/strings.xml                 # Español
 └── src/com/androidtvlite/launcher/
-    └── MainActivity.java                     # toda a interface e a lógica (~360 linhas)
+    └── MainActivity.java                     # all UI and logic (~370 lines)
 ```
 
-Toda a interface é montada em código (sem XML de layout), o que mantém o app pequeno. O APK final tem cerca de 50 KB.
+The whole interface is built in code (no layout XML), which keeps the app small. The final APK is about 200 KB, almost all of it the background photo (the code itself is only a few tens of KB).
 
-## Licença
+## License
 
-[MIT](LICENSE) para o **código**. Use, copie e modifique à vontade.
+[MIT](LICENSE) for the **code**. Use, copy and modify freely.
 
-A licença MIT **não cobre** a imagem de fundo `res/drawable-nodpi/bg.jpg` (veja a seção sobre como trocá-la).
+The MIT license **does not cover** the background image `res/drawable-nodpi/bg.jpg` (see the section on changing it).
 
-As marcas e logotipos dos apps exibidos (Netflix, YouTube, Prime Video, Globoplay, Disney+, Apple TV, Crunchyroll e outros) pertencem aos respectivos donos. Eles aparecem apenas porque cada app fornece o próprio banner ao sistema.
+The brands and logos of the apps shown (Netflix, YouTube, Prime Video, Globoplay, Disney+, Apple TV, Crunchyroll and others) belong to their respective owners. They appear only because each app supplies its own banner to the system.

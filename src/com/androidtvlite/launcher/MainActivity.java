@@ -16,6 +16,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -104,9 +105,14 @@ public class MainActivity extends Activity {
         tlp.setMargins(dp(40), dp(22), dp(40), 0);
         root.addView(top, tlp);
 
+        // Data e hora seguem o idioma e o formato (12h/24h) configurados na TV.
+        Locale locale = getResources().getConfiguration().getLocales().get(0);
+        String datePattern = DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM");
+        String timePattern = DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm";
+
         TextClock date = new TextClock(this);
-        date.setFormat24Hour("EEEE, d 'de' MMMM");
-        date.setFormat12Hour("EEEE, d 'de' MMMM");
+        date.setFormat24Hour(datePattern);
+        date.setFormat12Hour(datePattern);
         date.setTextColor(0xE6FFFFFF);
         date.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         date.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
@@ -114,8 +120,8 @@ public class MainActivity extends Activity {
         top.addView(date, new FrameLayout.LayoutParams(-2, -2, Gravity.START | Gravity.CENTER_VERTICAL));
 
         TextClock clock = new TextClock(this);
-        clock.setFormat24Hour("HH:mm");
-        clock.setFormat12Hour("HH:mm");
+        clock.setFormat24Hour(timePattern);
+        clock.setFormat12Hour(timePattern);
         clock.setTextColor(Color.WHITE);
         clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
         clock.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
@@ -132,7 +138,7 @@ public class MainActivity extends Activity {
         navBg.setCornerRadius(dp(40));
         navBg.setColor(0x66000000);
         nav.setBackground(navBg);
-        nav.addView(makeTab("Home", true, new Runnable() {
+        nav.addView(makeTab(getString(R.string.nav_home), true, new Runnable() {
             @Override
             public void run() {
                 focusFirstTile();
@@ -144,7 +150,7 @@ public class MainActivity extends Activity {
                 openPlayStore();
             }
         }));
-        nav.addView(makeTab("Configurações", false, new Runnable() {
+        nav.addView(makeTab(getString(R.string.nav_settings), false, new Runnable() {
             @Override
             public void run() {
                 openSettings();

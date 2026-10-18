@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Launcher Leve</string>
+    <string name="nav_home">Início</string>
+    <string name="nav_settings">Configurações</string>
+</resources>

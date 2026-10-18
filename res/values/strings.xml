@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Idioma padrao (ingles). Usado quando a TV esta em um idioma sem traducao. -->
+<resources>
+    <string name="app_name">Lite Launcher</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_settings">Settings</string>
+</resources>
