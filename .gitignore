@@ -1,0 +1,16 @@
+# Saida de compilacao e artefatos
+build/
+*.apk
+*.idsig
+*.dex
+*.class
+
+# Chaves de assinatura: nunca versionar
+*.keystore
+*.jks
+
+# Ferramentas e arquivos locais
+local.properties
+.idea/
+*.iml
+Thumbs.db
