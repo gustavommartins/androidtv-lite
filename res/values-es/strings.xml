@@ -3,4 +3,11 @@
     <string name="app_name">Launcher Ligero</string>
     <string name="nav_home">Inicio</string>
     <string name="nav_settings">Configuración</string>
+    <string name="edit_add_apps">Añadir apps</string>
+    <string name="edit_done">Listo</string>
+    <string name="action_move">Mover</string>
+    <string name="action_remove">Quitar de Inicio</string>
+    <string name="action_uninstall">Desinstalar</string>
+    <string name="add_title">Añadir a Inicio</string>
+    <string name="add_empty">Todas las apps ya están en Inicio</string>
 </resources>

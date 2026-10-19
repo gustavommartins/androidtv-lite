@@ -40,10 +40,16 @@ O visual é inspirado na tela inicial do Apple TV (tvOS). Este projeto **não é
 - **Barra de navegação no topo, centralizada:** `Início` · `Google Play` · `Configurações`, em pílula translúcida. A aba com foco vira uma pílula branca, como no tvOS.
 - **Data no canto superior esquerdo e horário no direito.**
 - **Grade de apps centralizada**, em 4 colunas e várias linhas, sem rolagem lateral. O app em foco sobe, aumenta e mostra o nome embaixo.
-- **Ordem alfabética**, ignorando acentos e maiúsculas.
-- **Só apps de streaming conhecidos** e qualquer app instalado por você. Apps de sistema da fabricante e do Google ficam de fora.
+- **Ordem alfabética** por padrão, ignorando acentos e maiúsculas. Depois que você personaliza a Home, a sua ordem é mantida.
+- **Só apps de streaming conhecidos** por padrão, e qualquer app instalado por você. Apps de sistema da fabricante e do Google ficam de fora até você adicioná-los.
+- **Personalizar a Home**, estilo iOS. Segure **OK** em um app e os apps começam a tremer. Nesse modo:
+  - **OK** num app abre um menu com **Mover · Remover da Home · Desinstalar**. *Desinstalar* só aparece para apps que não são de sistema, e abre o diálogo de desinstalação do sistema.
+  - **Mover**: as setas movem o app e os outros se deslocam, como no iOS. OK ou Voltar solta.
+  - **Adicionar apps** (embaixo, no centro) lista todos os apps de TV que estão fora da Home, inclusive os de sistema. OK num deles coloca o app no fim da Home. **Concluído** sai do modo de edição.
+  - **Voltar** sai por camadas: solta o app, fecha o menu, fecha *Adicionar apps* e, por fim, sai da edição.
+  - A ordem e as remoções são salvas no aparelho. Apps novos instalados entram no fim da Home; apps removidos só voltam por *Adicionar apps*.
 - **Imagem de fundo** reduzida para 1280 px e carregada em RGB_565, para gastar pouca memória. É fácil trocar por outra.
-- **Sem rede, sem anúncios, sem telemetria, sem permissões.** O app não pede nenhuma permissão.
+- **Sem rede, sem anúncios, sem telemetria.** A única permissão é `REQUEST_DELETE_PACKAGES` (normal, concedida automaticamente), usada só para abrir o diálogo de desinstalação do sistema.
 
 ## Idiomas
 
@@ -59,15 +65,24 @@ O launcher segue o **idioma do sistema da TV**. Não há nada para configurar.
 - A data segue o formato do próprio idioma, e o relógio segue a configuração de **12 h / 24 h** da TV (o formato de 12 h não mostra AM/PM).
 - Os nomes dos apps vêm de cada app, então aparecem no idioma que o app fornecer.
 
-**Adicionar um idioma:** crie `res/values-xx/strings.xml` (`xx` = código do idioma, por exemplo `fr`) com as três strings abaixo e recompile. Pull requests são bem-vindos.
+**Adicionar um idioma:** crie `res/values-xx/strings.xml` (`xx` = código do idioma, por exemplo `fr`) com as strings abaixo e recompile. Pull requests são bem-vindos.
 
 ```xml
 <resources>
     <string name="app_name">...</string>
     <string name="nav_home">...</string>
     <string name="nav_settings">...</string>
+    <string name="edit_add_apps">...</string>
+    <string name="edit_done">...</string>
+    <string name="action_move">...</string>
+    <string name="action_remove">...</string>
+    <string name="action_uninstall">...</string>
+    <string name="add_title">...</string>
+    <string name="add_empty">...</string>
 </resources>
 ```
+
+A lista completa, com os textos em inglês, está em `res/values/strings.xml`.
 
 ## Requisitos
 
@@ -196,7 +211,7 @@ Se algo der muito errado, um **reset de fábrica** da TV restaura tudo.
 
 ## Personalizar
 
-Tudo está em `src/com/androidtvlite/launcher/MainActivity.java`. Depois de editar, rode `build.ps1` e reinstale com `adb install -r`.
+A interface e a lógica estão em `src/com/androidtvlite/launcher/MainActivity.java`, e as regras de ordem (lista padrão, ordem salva, movimentos, navegação na grade) estão em `HomeOrder.java`. Depois de editar, rode `build.ps1` e reinstale com `adb install -r`.
 
 | O que mudar | Onde |
 |---|---|
@@ -208,6 +223,18 @@ Tudo está em `src/com/androidtvlite/launcher/MainActivity.java`. Depois de edit
 | Textos (barra, nome do app) | `res/values*/strings.xml` |
 | Escurecimento sobre o fundo | `GradientDrawable` do `scrim` em `onCreate` |
 | Imagem de fundo | `res/drawable-nodpi/bg.jpg` |
+| Regras de ordem (ordem salva, apps novos e ocultos) | `HomeOrder.merge` em `HomeOrder.java` |
+
+### Rodar os testes do HomeOrder
+
+O `HomeOrder` não depende do Android, então os testes rodam só com o JDK (sem SDK e sem Gradle). Na raiz do projeto:
+
+```powershell
+javac -d build\test src\com\androidtvlite\launcher\HomeOrder.java test\com\androidtvlite\launcher\HomeOrderTest.java
+java -cp build\test com.androidtvlite.launcher.HomeOrderTest
+```
+
+Se tudo passar, o comando imprime `OK`. Uma verificação que falha lança um `AssertionError` com o nome do caso.
 
 ### Trocar a imagem de fundo
 
@@ -221,11 +248,18 @@ Substitua `res/drawable-nodpi/bg.jpg` por uma imagem sua e recompile. Dicas:
 
 ## Como ele escolhe os apps
 
+Antes de você personalizar a Home, vale a ordem padrão:
+
 1. Consulta o sistema por apps com a categoria `LEANBACK_LAUNCHER` (os apps feitos para TV).
 2. Ignora o próprio launcher, a Play Store e as Configurações (que já estão na barra).
-3. Mantém um app se ele estiver na lista `PREFERRED` **ou** se **não for app de sistema**, ou seja, qualquer app que você instalar.
-4. Ordena por nome, ignorando acentos e maiúsculas.
-5. A lista é refeita sempre que você volta à tela inicial, então um app recém-instalado aparece sem reiniciar.
+3. Mantém um app se ele estiver na lista `PREFERRED` **ou** se **não for app de sistema**, ou seja, qualquer app que você instalar. Ordena por nome, ignorando acentos e maiúsculas.
+
+Depois da primeira personalização, vale a ordem salva:
+
+4. Apps instalados depois entram no fim da Home.
+5. Apps ocultos (removidos da Home) não voltam sozinhos. Para trazê-los de volta, use **Adicionar apps**.
+6. **Adicionar apps** lista todos os apps de TV que estão fora da Home, inclusive os de sistema da fabricante e do Google, em ordem alfabética. Só a Play Store, as Configurações e o próprio launcher ficam de fora.
+7. A lista é refeita sempre que você volta à tela inicial, então um app recém-instalado aparece sem reiniciar.
 
 ## Limitações conhecidas
 
@@ -254,7 +288,7 @@ Substitua `res/drawable-nodpi/bg.jpg` por uma imagem sua e recompile. Dicas:
 
 ```
 androidtv-lite/
-├── AndroidManifest.xml                       # atividade HOME + LEANBACK_LAUNCHER, sem permissões
+├── AndroidManifest.xml                       # atividade HOME + LEANBACK_LAUNCHER; única permissão: REQUEST_DELETE_PACKAGES
 ├── build.ps1                                 # compila e assina o APK (sem Gradle)
 ├── docs/screenshots/                         # imagens do README
 ├── res/
@@ -262,8 +296,11 @@ androidtv-lite/
 │   ├── values/strings.xml                    # inglês (padrão)
 │   ├── values-pt/strings.xml                 # português
 │   └── values-es/strings.xml                 # espanhol
-└── src/com/androidtvlite/launcher/
-    └── MainActivity.java                     # toda a interface e a lógica (~370 linhas)
+├── src/com/androidtvlite/launcher/
+│   ├── HomeOrder.java                        # regras de ordem (Java puro, sem APIs do Android)
+│   └── MainActivity.java                     # toda a interface e a lógica (~1050 linhas)
+└── test/com/androidtvlite/launcher/
+    └── HomeOrderTest.java                    # testes de HomeOrder (Java puro)
 ```
 
 Toda a interface é montada em código (sem XML de layout), o que mantém o app pequeno. O APK final tem cerca de 200 KB, quase tudo é a foto de fundo (o código em si ocupa poucas dezenas de KB).

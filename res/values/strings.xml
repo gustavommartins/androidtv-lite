@@ -4,4 +4,11 @@
     <string name="app_name">Lite Launcher</string>
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
+    <string name="edit_add_apps">Add apps</string>
+    <string name="edit_done">Done</string>
+    <string name="action_move">Move</string>
+    <string name="action_remove">Remove from Home</string>
+    <string name="action_uninstall">Uninstall</string>
+    <string name="add_title">Add to Home</string>
+    <string name="add_empty">All apps are already on Home</string>
 </resources>

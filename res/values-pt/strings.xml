@@ -3,4 +3,11 @@
     <string name="app_name">Launcher Leve</string>
     <string name="nav_home">Início</string>
     <string name="nav_settings">Configurações</string>
+    <string name="edit_add_apps">Adicionar apps</string>
+    <string name="edit_done">Concluído</string>
+    <string name="action_move">Mover</string>
+    <string name="action_remove">Remover da Home</string>
+    <string name="action_uninstall">Desinstalar</string>
+    <string name="add_title">Adicionar à Home</string>
+    <string name="add_empty">Todos os apps já estão na Home</string>
 </resources>
