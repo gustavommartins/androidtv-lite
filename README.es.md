@@ -28,6 +28,7 @@ El diseño se inspira en la pantalla de inicio de Apple TV (tvOS). Este proyecto
 - [Instalar en el televisor](#instalar-en-el-televisor)
 - [Establecerlo como launcher predeterminado](#establecerlo-como-launcher-predeterminado)
 - [Volver al launcher original / desinstalar](#volver-al-launcher-original--desinstalar)
+- [Personalizar la pantalla de inicio](#personalizar-la-pantalla-de-inicio)
 - [Personalizar](#personalizar)
 - [Cómo elige las apps](#cómo-elige-las-apps)
 - [Limitaciones conocidas](#limitaciones-conocidas)
@@ -208,6 +209,46 @@ adb shell pm uninstall com.androidtvlite.launcher
 ```
 
 Si algo sale muy mal, un **restablecimiento de fábrica** del televisor lo restaura todo.
+
+## Personalizar la pantalla de inicio
+
+Mantén pulsado **OK** en cualquier app para entrar en el **modo de edición**, como en iOS: las apps empiezan a temblar y aparecen dos botones, **Añadir apps** y **Listo**, en la parte inferior central.
+
+![Modo de edición: apps temblando y los botones Añadir apps / Listo abajo](docs/screenshots/edit-mode.jpg)
+
+### Menú de cada app
+
+En el modo de edición, pulsa **OK** en una app para abrir su menú:
+
+![Menú con Mover y Quitar de Inicio bajo la app seleccionada](docs/screenshots/edit-menu.jpg)
+
+| Opción | Qué hace |
+|---|---|
+| **Mover** | Levanta la app. Las flechas la mueven y las demás se desplazan. **OK** o **Atrás** la suelta en su nueva posición. |
+| **Quitar de Inicio** | Quita la app de Inicio. No se desinstala y solo vuelve con *Añadir apps*. |
+| **Desinstalar** | Abre el diálogo de desinstalación del sistema. Solo aparece para apps que no son del sistema. |
+
+![Una app en movimiento: elevada y más grande, las demás le hacen sitio](docs/screenshots/edit-move.jpg)
+
+### Añadir apps
+
+**Añadir apps** lista todas las apps de TV que no están en Inicio, incluidas las del sistema, del fabricante y de Google. **OK** en una la coloca al final de Inicio, y puedes añadir varias seguidas.
+
+![Pantalla Añadir a Inicio con las apps que no están en Inicio](docs/screenshots/edit-add.jpg)
+
+### Salir y Atrás
+
+**Atrás** sale una capa cada vez: suelta la app que se está moviendo, cierra el menú, cierra *Añadir apps* y, por último, sale del modo de edición. **Listo** y el botón **Inicio** salen directamente del modo de edición.
+
+### Cómo se guarda
+
+- El orden y las apps quitadas se guardan en el propio televisor (`SharedPreferences`), así que sobreviven a los reinicios.
+- Mientras no personalices nada, Inicio sigue la regla predeterminada (apps de streaming conocidas y las que instalaste, en orden alfabético).
+- Las apps que instales después van solas al final de Inicio. Las que quitaste siguen fuera.
+- Si una app se desinstala, desaparece de Inicio. Si se vuelve a instalar, regresa como app nueva.
+- Reinstalar el launcher con la misma clave (`adb install -r`) conserva tu disposición. Desinstalar el launcher la borra.
+
+> Las capturas se hicieron en un televisor configurado en portugués.
 
 ## Personalizar
 

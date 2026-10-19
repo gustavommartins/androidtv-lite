@@ -28,6 +28,7 @@ O visual é inspirado na tela inicial do Apple TV (tvOS). Este projeto **não é
 - [Instalar na TV](#instalar-na-tv)
 - [Tornar o launcher padrão](#tornar-o-launcher-padrão)
 - [Voltar ao launcher original / desinstalar](#voltar-ao-launcher-original--desinstalar)
+- [Personalizar a Home](#personalizar-a-home)
 - [Personalizar](#personalizar)
 - [Como ele escolhe os apps](#como-ele-escolhe-os-apps)
 - [Limitações conhecidas](#limitações-conhecidas)
@@ -208,6 +209,46 @@ adb shell pm uninstall com.androidtvlite.launcher
 ```
 
 Se algo der muito errado, um **reset de fábrica** da TV restaura tudo.
+
+## Personalizar a Home
+
+Segure **OK** em qualquer app para entrar no **modo de edição**, como no iOS: os apps começam a tremer e dois botões, **Adicionar apps** e **Concluído**, aparecem na parte inferior central.
+
+![Modo de edição: apps tremendo e os botões Adicionar apps / Concluído embaixo](docs/screenshots/edit-mode.jpg)
+
+### Menu de cada app
+
+No modo de edição, aperte **OK** em um app para abrir o menu dele:
+
+![Menu com Mover e Remover da Home sob o app selecionado](docs/screenshots/edit-menu.jpg)
+
+| Opção | O que faz |
+|---|---|
+| **Mover** | Levanta o app. As setas o movem e os outros se ajustam. **OK** ou **Voltar** o solta na nova posição. |
+| **Remover da Home** | Tira o app da Home. Ele não é desinstalado e só volta por *Adicionar apps*. |
+| **Desinstalar** | Abre o diálogo de desinstalação do sistema. Só aparece para apps que não são do sistema. |
+
+![Um app sendo movido: levantado e maior, os outros abrem espaço](docs/screenshots/edit-move.jpg)
+
+### Adicionar apps
+
+**Adicionar apps** lista todos os apps de TV que não estão na Home, inclusive os do sistema, do fabricante e do Google. **OK** em um deles o coloca no fim da Home, e dá para adicionar vários em sequência.
+
+![Tela Adicionar à Home com os apps que não estão na Home](docs/screenshots/edit-add.jpg)
+
+### Sair e Voltar
+
+**Voltar** sai uma camada por vez: solta o app que está sendo movido, fecha o menu, fecha *Adicionar apps* e, por fim, sai do modo de edição. **Concluído** e o botão **Home** saem direto do modo de edição.
+
+### Como é salvo
+
+- A ordem e os apps removidos ficam salvos na própria TV (`SharedPreferences`), então sobrevivem a reinicializações.
+- Enquanto você não personalizar nada, a Home segue a regra padrão (apps de streaming conhecidos e os que você instalou, em ordem alfabética).
+- Apps que você instalar depois vão para o fim da Home sozinhos. Os que você removeu continuam de fora.
+- Se um app for desinstalado, ele some da Home. Se for instalado de novo, volta como app novo.
+- Reinstalar o launcher com a mesma chave (`adb install -r`) mantém o seu layout. Desinstalar o launcher apaga tudo.
+
+> As capturas de tela foram feitas em uma TV em português.
 
 ## Personalizar
 
