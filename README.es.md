@@ -6,6 +6,8 @@ Un launcher de Android TV **minimalista y ligero**, pensado para televisores con
 
 El diseño se inspira en la pantalla de inicio de Apple TV (tvOS). Este proyecto **no está afiliado a Apple** ni a ninguna de las marcas de las apps que muestra.
 
+> **Nota.** Proyecto gratuito y de código abierto, proporcionado "tal cual" (consulta la [licencia MIT](LICENSE)). Se probó en un televisor TCL con Android 9, y en otros modelos el cambio de launcher puede no funcionar como se espera. Si ocurre, consulta [cómo volver al launcher original](#volver-al-launcher-original--desinstalar).
+
 ![Pantalla de inicio](docs/screenshots/home-es.jpg)
 
 <details>
@@ -284,8 +286,8 @@ Sustituye `res/drawable-nodpi/bg.jpg` por una imagen tuya y vuelve a compilar. C
 - **1280 px de ancho** es suficiente y usa poca memoria. Evita las imágenes 4K, que gastan RAM sin necesidad.
 - Formato JPEG, calidad en torno a 85.
 - El fondo se recorta para llenar la pantalla (`centerCrop`), así que mantén el motivo principal en el centro.
-- La foto incluida en el repositorio (un pueblo costero al atardecer) es la elegida por el autor del proyecto. **No está cubierta por la licencia MIT**: los derechos pertenecen al fotógrafo, y desconozco la licencia original. Si eres el propietario y quieres que se retire, o si vas a redistribuir el proyecto, sustituye el archivo por una imagen tuya o de licencia libre.
-- Si usas una foto de terceros, respeta su licencia.
+- La foto incluida en el repositorio (un pueblo costero al atardecer) se tomó de [Unsplash](https://unsplash.com) y está bajo la [Licencia Unsplash](https://unsplash.com/license), **no bajo la licencia MIT**. Esa licencia permite el uso gratuito, también en proyectos como este, sin pedir permiso ni dar atribución (el crédito al fotógrafo se agradece). No tengo registrado el nombre del fotógrafo. Si eres el autor y quieres que se añada el crédito o que se retire la foto, abre un issue. Si vas a redistribuir el proyecto, puedes mantener la foto con los términos de la Licencia Unsplash o sustituir el archivo por una imagen tuya.
+- Si usas otra foto, respeta su licencia.
 
 ## Cómo elige las apps
 
@@ -333,7 +335,7 @@ androidtv-lite/
 ├── build.ps1                                 # compila y firma el APK (sin Gradle)
 ├── docs/screenshots/                         # imágenes del README
 ├── res/
-│   ├── drawable-nodpi/bg.jpg                 # fondo (foto, fuera de la licencia MIT)
+│   ├── drawable-nodpi/bg.jpg                 # fondo (foto de Unsplash, fuera de la licencia MIT)
 │   ├── values/strings.xml                    # inglés (predeterminado)
 │   ├── values-pt/strings.xml                 # portugués
 │   └── values-es/strings.xml                 # español
@@ -350,6 +352,8 @@ Toda la interfaz se construye en código (sin XML de diseño), lo que mantiene l
 
 [MIT](LICENSE) para el **código**. Úsalo, cópialo y modifícalo libremente.
 
-La licencia MIT **no cubre** la imagen de fondo `res/drawable-nodpi/bg.jpg` (consulta la sección sobre cómo cambiarla).
+La licencia MIT **no cubre** la imagen de fondo `res/drawable-nodpi/bg.jpg`, que procede de Unsplash y está bajo la [Licencia Unsplash](https://unsplash.com/license) (consulta la sección sobre cómo cambiarla).
+
+El software se proporciona **"tal cual", sin garantía de ningún tipo**. Los autores no responden por reclamaciones ni daños derivados de su uso, según el texto de la licencia MIT.
 
 Las marcas y logotipos de las apps mostradas (Netflix, YouTube, Prime Video, Globoplay, Disney+, Apple TV, Crunchyroll y otras) pertenecen a sus respectivos dueños. Aparecen únicamente porque cada app proporciona su propio banner al sistema.
